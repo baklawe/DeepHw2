@@ -67,11 +67,12 @@ class VanillaSGD(Optimizer):
             if dp is None:
                 continue
 
-            # TODO: Implement the optimizer step.
+            # DONE: Implement the optimizer step.
             # Update the gradient according to regularization and then
             # update the parameters tensor.
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            dp += self.reg*p
+            p -= self.learn_rate*dp
             # ========================
 
 
@@ -90,11 +91,12 @@ class MomentumSGD(Optimizer):
 
         # TODO: Add your own initializations as needed.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.v = [torch.zeros_like(p) for p, _ in self.params]
+
         # ========================
 
     def step(self):
-        for p, dp in self.params:
+        for idx, (p, dp) in enumerate(self.params):
             if dp is None:
                 continue
 
@@ -102,7 +104,9 @@ class MomentumSGD(Optimizer):
             # update the parameters tensor based on the velocity. Don't forget
             # to include the regularization term.
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            dp += self.reg * p
+            self.v[idx] = self.momentum*self.v[idx] - self.learn_rate*dp
+            p += self.v[idx]
             # ========================
 
 
@@ -123,11 +127,11 @@ class RMSProp(Optimizer):
 
         # TODO: Add your own initializations as needed.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.r = [self.learn_rate * torch.ones_like(p) for p, _ in self.params]
         # ========================
 
     def step(self):
-        for p, dp in self.params:
+        for idx, (p, dp) in enumerate(self.params):
             if dp is None:
                 continue
 
@@ -136,5 +140,7 @@ class RMSProp(Optimizer):
             # average of it's previous gradients. Use it to update the
             # parameters tensor.
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            dp += self.reg * p
+            self.r[idx] = self.decay * self.r[idx] + (1-self.decay) * dp**2
+            p -= (self.learn_rate * torch.rsqrt(self.r[idx]+self.eps))*dp
             # ========================

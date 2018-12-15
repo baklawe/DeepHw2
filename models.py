@@ -34,7 +34,7 @@ class MLP(Block):
 
         lst = [self.in_features, *self.hidden_features, self.num_classes]
         blocks = []
-        # TODO: Build the MLP architecture as described.
+        # Done: Build the MLP architecture as described.
         # ====== YOUR CODE: ======
         for idx in range(len(lst)-2):
             blocks.append(Linear(lst[idx], lst[idx+1]))
