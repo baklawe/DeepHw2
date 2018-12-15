@@ -72,10 +72,11 @@ class Linear(Block):
         self.in_features = in_features
         self.out_features = out_features
 
-        # TODO: Create the weight matrix (w) and bias vector (b).
+        # DONE: Create the weight matrix (w) and bias vector (b).
 
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.w = torch.randn(self.out_features, self.in_features) * wstd
+        self.b = torch.randn(1, self.out_features)
         # ========================
 
         self.dw = torch.zeros_like(self.w)
@@ -97,10 +98,10 @@ class Linear(Block):
 
         x = x.reshape((x.shape[0], -1))
 
-        # TODO: Compute the affine transform
+        # DONE: Compute the affine transform
 
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        out = x @ self.w.t() + self.b
         # ========================
 
         self.grad_cache['x'] = x
@@ -113,13 +114,15 @@ class Linear(Block):
         """
         x = self.grad_cache['x']
 
-        # TODO: Compute
+        # DONE: Compute
         #   - dx, the gradient of the loss with respect to x
         #   - dw, the gradient of the loss with respect to w
         #   - db, the gradient of the loss with respect to b
         # You should accumulate gradients in dw and db.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        dx = dout @ self.w
+        self.dw += torch.transpose(x.t() @ dout, -2, -1)
+        self.db += torch.sum(dout, dim=0)
         # ========================
 
         return dx
@@ -143,9 +146,9 @@ class ReLU(Block):
         :return: ReLU of each sample in x.
         """
 
-        # TODO: Implement the ReLU operation.
+        # Done: Implement the ReLU operation.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        out = torch.max(x, torch.zeros_like(x))
         # ========================
 
         self.grad_cache['x'] = x
@@ -158,9 +161,9 @@ class ReLU(Block):
         """
         x = self.grad_cache['x']
 
-        # TODO: Implement gradient w.r.t. the input x
+        # Done: Implement gradient w.r.t. the input x
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        dx = (x > 0).float() * dout
         # ========================
 
         return dx
@@ -204,7 +207,9 @@ class CrossEntropyLoss(Block):
         # Tip: to get a different column from each row of a matrix tensor m,
         # you can index it with m[range(num_rows), list_of_cols].
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        loss = - x[range(N), y]
+        loss += torch.log(torch.sum(torch.exp(x), dim=1))
+        loss = torch.sum(loss, dim=0) / N
         # ========================
 
         self.grad_cache['x'] = x
@@ -223,7 +228,10 @@ class CrossEntropyLoss(Block):
 
         # TODO: Calculate the gradient w.r.t. the input x
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        term1 = torch.zeros_like(x).scatter_(1, y.unsqueeze_(1), -1)
+
+        term2 = torch.exp(x) / torch.sum(torch.exp(x), dim=1, keepdim=True)
+        dx = dout * (term1 + term2)
         # ========================
 
         return dx
