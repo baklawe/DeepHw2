@@ -254,7 +254,14 @@ class Dropout(Block):
         # previous blocks, this block behaves differently a according to the
         # current mode (train/test).
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+
+        if self.training_mode is True:
+            berny = torch.distributions.Bernoulli(torch.tensor([1 - self.p]))
+            x_drop = torch.squeeze(berny.sample(sample_shape=x.shape), dim=-1)
+            out = x * x_drop / (1 - self.p)
+            self.grad_cache['x_drop'] = x_drop
+        else:
+            out = x
         # ========================
 
         return out
@@ -262,7 +269,11 @@ class Dropout(Block):
     def backward(self, dout):
         # TODO: Implement the dropout backward pass.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        if self.training_mode is True:
+            x_drop = self.grad_cache['x_drop']
+            dx = dout * x_drop / (1 - self.p)
+        else:
+            dx = dout
         # ========================
 
         return dx

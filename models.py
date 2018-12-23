@@ -39,7 +39,8 @@ class MLP(Block):
         for idx in range(len(lst)-2):
             blocks.append(Linear(lst[idx], lst[idx+1]))
             blocks.append(ReLU())
-
+            if dropout is not 0:
+                blocks.append(Dropout(p=dropout))
         blocks.append(Linear(lst[-2], lst[-1]))
         # ========================
 
@@ -97,7 +98,8 @@ class ConvClassifier(nn.Module):
         # Use only dimension-preserving 3x3 convolutions. Apply 2x2 Max
         # Pooling to reduce dimensions.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        for idx, num_f in enumerate(self.filters):
+            layers.append()
 
         # ========================
         seq = nn.Sequential(*layers)
