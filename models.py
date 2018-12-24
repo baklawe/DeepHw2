@@ -32,16 +32,16 @@ class MLP(Block):
         self.hidden_features = hidden_features
         self.dropout = dropout
 
-        lst = [self.in_features, *self.hidden_features, self.num_classes]
+        lst = [self.in_features, *self.hidden_features]
         blocks = []
         # Done: Build the MLP architecture as described.
         # ====== YOUR CODE: ======
-        for idx in range(len(lst)-2):
+        for idx in range(len(lst)-1):
             blocks.append(Linear(lst[idx], lst[idx+1]))
             blocks.append(ReLU())
             if dropout is not 0:
                 blocks.append(Dropout(p=dropout))
-        blocks.append(Linear(lst[-2], lst[-1]))
+        blocks.append(Linear(lst[-1], self.num_classes))
         # ========================
 
         self.sequence = Sequential(*blocks)
@@ -92,14 +92,18 @@ class ConvClassifier(nn.Module):
     def _make_feature_extractor(self):
         in_channels, in_h, in_w, = tuple(self.in_size)
 
+        lst = [in_channels, *self.filters]
         layers = []
         # TODO: Create the feature extractor part of the model:
         # [(Conv -> ReLU)*P -> MaxPool]*(N/P)
         # Use only dimension-preserving 3x3 convolutions. Apply 2x2 Max
         # Pooling to reduce dimensions.
         # ====== YOUR CODE: ======
-        for idx, num_f in enumerate(self.filters):
-            layers.append()
+        for idx in range(len(lst) - 1):
+            layers.append(nn.Conv2d(lst[idx], lst[idx+1], kernel_size=(3, 3), padding=(1, 1)))
+            layers.append(nn.ReLU())
+            if (idx + 1) % self.pool_every is 0:
+                layers.append(torch.nn.MaxPool2d(kernel_size=(2, 2)))
 
         # ========================
         seq = nn.Sequential(*layers)
@@ -107,14 +111,20 @@ class ConvClassifier(nn.Module):
 
     def _make_classifier(self):
         in_channels, in_h, in_w, = tuple(self.in_size)
-
+        num_pool = int(len(self.filters) / self.pool_every)
+        in_size = int(self.filters[-1] * (in_h / (2 ** num_pool)) * (in_w / (2 ** num_pool)))
+        lst = [in_size, *self.hidden_dims]
         layers = []
         # TODO: Create the classifier part of the model:
         # (Linear -> ReLU)*M -> Linear
         # You'll need to calculate the number of features first.
         # The last Linear layer should have an output dimension of out_classes.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        for idx in range(len(lst)-1):
+            layers.append(nn.Linear(lst[idx], lst[idx+1]))
+            layers.append(nn.ReLU())
+
+        layers.append(nn.Linear(lst[-1], self.out_classes))
         # ========================
         seq = nn.Sequential(*layers)
         return seq
@@ -124,7 +134,8 @@ class ConvClassifier(nn.Module):
         # Extract features from the input, run the classifier on them and
         # return class scores.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        features = self.feature_extractor(x)
+        out = self.classifier(features.view([features.shape[0], -1]))
         # ========================
         return out
 
