@@ -56,7 +56,21 @@ def run_experiment(run_name, out_dir='./results', seed=None,
     #  for you automatically.
     fit_res = None
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    x0, _ = ds_train[0]
+    in_size = x0.shape
+    num_classes = 10
+    filters = [y for x in filters_per_layer for y in layers_per_block*[x]]
+    model = models.ConvClassifier(in_size, num_classes, filters=filters, pool_every=pool_every, hidden_dims=hidden_dims)
+    loss_fn = torch.nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, **kw)
+
+    trainer = training.TorchTrainer(model, loss_fn, optimizer, device)
+
+    dl_train = DataLoader(ds_train, bs_train)
+    dl_test = DataLoader(ds_test, bs_test)
+
+    fit_res = trainer.fit(dl_train, dl_test, epochs, checkpoints=checkpoints, early_stopping=early_stopping)
+    print(type(fit_res))
     # ========================
 
     save_experiment(run_name, out_dir, cfg, fit_res)
