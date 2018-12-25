@@ -76,7 +76,7 @@ class Linear(Block):
 
         # ====== YOUR CODE: ======
         self.w = torch.randn(self.out_features, self.in_features) * wstd
-        self.b = torch.randn(1, self.out_features)
+        self.b = torch.randn(1, self.out_features)  # Moshe
         # ========================
 
         self.dw = torch.zeros_like(self.w)
@@ -121,7 +121,7 @@ class Linear(Block):
         # You should accumulate gradients in dw and db.
         # ====== YOUR CODE: ======
         dx = dout @ self.w
-        self.dw += torch.transpose(x.t() @ dout, -2, -1)
+        self.dw += torch.transpose(x.t() @ dout, -2, -1)  # Moshe
         self.db += torch.sum(dout, dim=0)
         # ========================
 
@@ -208,10 +208,8 @@ class CrossEntropyLoss(Block):
         # you can index it with m[range(num_rows), list_of_cols].
         # ====== YOUR CODE: ======
         term1 = - x[range(N), y]
-        # print("shape term1", term1.shape)
         term2 = torch.log(torch.sum(torch.exp(x), dim=1))
         loss = torch.sum(term1 + term2, dim=0) / N
-        # print("shape of loss", loss.shape)
         # ========================
 
         self.grad_cache['x'] = x
@@ -230,7 +228,6 @@ class CrossEntropyLoss(Block):
 
         # DONE: Calculate the gradient w.r.t. the input x
         # ====== YOUR CODE: ======
-
         term1 = torch.zeros_like(x).scatter_(1, y.view(-1, 1), -1)
         denum = torch.sum(torch.exp(x), dim=1, keepdim=True)
         term2 = torch.exp(x) / denum.expand(-1, x.shape[1])
@@ -250,11 +247,10 @@ class Dropout(Block):
         self.p = p
 
     def forward(self, x, **kw):
-        # TODO: Implement the dropout forward pass. Notice that contrary to
+        # DONE: Implement the dropout forward pass. Notice that contrary to
         # previous blocks, this block behaves differently a according to the
         # current mode (train/test).
         # ====== YOUR CODE: ======
-
         if self.training_mode is True:
             berny = torch.distributions.Bernoulli(torch.tensor([1 - self.p]))
             x_drop = torch.squeeze(berny.sample(sample_shape=x.shape), dim=-1)
@@ -267,7 +263,7 @@ class Dropout(Block):
         return out
 
     def backward(self, dout):
-        # TODO: Implement the dropout backward pass.
+        # DONE: Implement the dropout backward pass.
         # ====== YOUR CODE: ======
         if self.training_mode is True:
             x_drop = self.grad_cache['x_drop']
@@ -315,7 +311,7 @@ class Sequential(Block):
         # Each block's input gradient should be the previous block's output
         # gradient. Behold the backpropagation algorithm in action!
         # ====== YOUR CODE: ======
-        for idx, block in enumerate(reversed(self.blocks)):
+        for idx, block in enumerate(reversed(self.blocks)):   # Moshe
             if idx is 0:
                 din = block.backward(dout)
             else:

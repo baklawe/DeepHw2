@@ -11,7 +11,7 @@ math (delimited with $$).
 
 def part2_overfit_hp():
     wstd, lr, reg = 0.1, 1e-2, 0.001
-    # TODO: Tweak the hyperparameters until you overfit the small dataset.
+    # DONE: Tweak the hyperparameters until you overfit the small dataset.
     # ====== YOUR CODE: ======
 
     # ========================
@@ -21,7 +21,7 @@ def part2_overfit_hp():
 def part2_optim_hp():
     wstd, lr_vanilla, lr_momentum, lr_rmsprop, reg, = 0.1, 1e-2, 1e-3, 1e-3, 0.01
 
-    # TODO: Tweak the hyperparameters to get the best results you can.
+    # DONE: Tweak the hyperparameters to get the best results you can.
     # You may want to use different learning rates for each optimizer.
     # ====== YOUR CODE: ======
 
@@ -32,7 +32,7 @@ def part2_optim_hp():
 
 def part2_dropout_hp():
     wstd, lr, = 0.1, 1e-3
-    # TODO: Tweak the hyperparameters to get the model to overfit without
+    # DONE: Tweak the hyperparameters to get the model to overfit without
     # dropout.
     # ====== YOUR CODE: ======
 
@@ -42,28 +42,19 @@ def part2_dropout_hp():
 
 part2_q1 = r"""
 **Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+1. Yes , the graphs match our expectation. We expected inflictions on both test and train accuracies.
+As we can see the train accuracy decreases while the test accuracy increases.
+2. We can see from the results that higher dropout improves the test accuracy and loss. 
+However, during the training there was no significant difference.  
 """
 
 part2_q2 = r"""
-**Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+Yes, it is possible.
+if we examine the cross entropy loss term below.
+$loss= - x_y + \log\left(\sum_k e^{x_k}\right)$
+we can see that the loss can increase because of increment of the second term while it does not necessarily
+affect the accuracy.
+The classification (and hence the accuracy) is based on the argmax $x_k$ whereas the loss is determined by all $x_k$. 
 """
 # ==============
 

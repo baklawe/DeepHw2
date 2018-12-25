@@ -64,7 +64,7 @@ class Trainer(abc.ABC):
                 verbose = True
             self._print(f'--- EPOCH {epoch+1}/{num_epochs} ---', verbose)
 
-            # TODO: Train & evaluate for one epoch
+            # DONE: Train & evaluate for one epoch
             # - Use the train/test_epoch methods.
             # - Save losses and accuracies in the lists above.
             # - Optional: Implement checkpoints. You can use torch.save() to
@@ -72,13 +72,19 @@ class Trainer(abc.ABC):
             # - Optional: Implement early stopping. This is a very useful and
             #   simple regularization technique that is highly recommended.
             # ====== YOUR CODE: ======
-            epoch_train_loss, epoch_train_acc = self.train_epoch(dl_train, **kw)
-            epoch_test_loss, epoch_test_acc = self.test_epoch(dl_test, **kw)
-            train_loss.append(sum(epoch_train_loss)/len(epoch_train_loss))
+            epoch_train_loss, epoch_train_acc = self.train_epoch(dl_train, verbose=verbose, **kw)
+            epoch_test_loss, epoch_test_acc = self.test_epoch(dl_test, verbose=verbose, **kw)
+            train_loss.append(sum(epoch_train_loss)/len(epoch_train_loss))  # Moshe
             train_acc.append(epoch_train_acc)
             test_loss.append(sum(epoch_test_loss)/len(epoch_test_loss))
             test_acc.append(epoch_test_acc)
             actual_num_epochs += 1
+
+            # Early stopping
+            if early_stopping is not None and len(test_loss) > early_stopping:
+                lst = test_loss[-(early_stopping+1):]
+                if all(earlier <= later for earlier, later in zip(lst, lst[1:])):
+                    break
             # ========================
 
         return FitResult(actual_num_epochs,
@@ -209,7 +215,7 @@ class BlocksTrainer(Trainer):
     def test_batch(self, batch) -> BatchResult:
         X, y = batch
 
-        # TODO: Evaluate the Block model on one batch of data.
+        # DONE: Evaluate the Block model on one batch of data.
         # - Forward pass
         # - Calculate number of correct predictions
         # ====== YOUR CODE: ======
@@ -232,7 +238,7 @@ class TorchTrainer(Trainer):
             X = X.to(self.device)
             y = y.to(self.device)
 
-        # TODO: Train the PyTorch model on one batch of data.
+        # DONE: Train the PyTorch model on one batch of data.
         # - Forward pass
         # - Backward pass
         # - Optimize params
@@ -247,7 +253,7 @@ class TorchTrainer(Trainer):
         num_correct = torch.sum(y == y_pred)
         # ========================
 
-        return BatchResult(loss, num_correct)
+        return BatchResult(loss.item(), num_correct.item())
 
     def test_batch(self, batch) -> BatchResult:
         X, y = batch
@@ -256,7 +262,7 @@ class TorchTrainer(Trainer):
             y = y.to(self.device)
 
         with torch.no_grad():
-            # TODO: Evaluate the PyTorch model on one batch of data.
+            # DONE: Evaluate the PyTorch model on one batch of data.
             # - Forward pass
             # - Calculate number of correct predictions
             # ====== YOUR CODE: ======
@@ -266,4 +272,4 @@ class TorchTrainer(Trainer):
             loss = self.loss_fn(pred, y)
             # ========================
 
-        return BatchResult(loss, num_correct)
+        return BatchResult(loss.item(), num_correct.item())

@@ -47,7 +47,7 @@ def run_experiment(run_name, out_dir='./results', seed=None,
     # Select model class (experiment 1 or 2)
     model_cls = models.ConvClassifier if not ycn else models.YourCodeNet
 
-    # TODO: Train
+    # DONE: Train
     # - Create model, loss, optimizer and trainer based on the parameters.
     #   Use the model you've implemented previously, cross entropy loss and
     #   any optimizer that you wish.
@@ -60,17 +60,18 @@ def run_experiment(run_name, out_dir='./results', seed=None,
     in_size = x0.shape
     num_classes = 10
     filters = [y for x in filters_per_layer for y in layers_per_block*[x]]
-    model = models.ConvClassifier(in_size, num_classes, filters=filters, pool_every=pool_every, hidden_dims=hidden_dims)
+    model = model_cls(in_size, num_classes, filters=filters, pool_every=pool_every, hidden_dims=hidden_dims)
     loss_fn = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr, **kw)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=reg)
+    cfg.update({'optimizer': type(optimizer).__name__, 'loss_fn': type(loss_fn).__name__})
 
     trainer = training.TorchTrainer(model, loss_fn, optimizer, device)
 
-    dl_train = DataLoader(ds_train, bs_train)
-    dl_test = DataLoader(ds_test, bs_test)
+    dl_train = DataLoader(ds_train, bs_train, shuffle=True)
+    dl_test = DataLoader(ds_test, bs_test, shuffle=True)
 
-    fit_res = trainer.fit(dl_train, dl_test, epochs, checkpoints=checkpoints, early_stopping=early_stopping)
-    print(type(fit_res))
+    fit_res = trainer.fit(dl_train, dl_test, epochs, checkpoints=checkpoints, early_stopping=early_stopping,
+                          max_batches=batches)
     # ========================
 
     save_experiment(run_name, out_dir, cfg, fit_res)

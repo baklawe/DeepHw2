@@ -89,7 +89,7 @@ class MomentumSGD(Optimizer):
         self.reg = reg
         self.momentum = momentum
 
-        # TODO: Add your own initializations as needed.
+        # DONE: Add your own initializations as needed.
         # ====== YOUR CODE: ======
         self.v = [torch.zeros_like(p) for p, _ in self.params]
 
@@ -100,7 +100,7 @@ class MomentumSGD(Optimizer):
             if dp is None:
                 continue
 
-            # TODO: Implement the optimizer step.
+            # DONE: Implement the optimizer step.
             # update the parameters tensor based on the velocity. Don't forget
             # to include the regularization term.
             # ====== YOUR CODE: ======
@@ -125,7 +125,7 @@ class RMSProp(Optimizer):
         self.decay = decay
         self.eps = eps
 
-        # TODO: Add your own initializations as needed.
+        # DONE: Add your own initializations as needed.
         # ====== YOUR CODE: ======
         self.r = [self.learn_rate * torch.ones_like(p) for p, _ in self.params]
         # ========================
@@ -135,12 +135,12 @@ class RMSProp(Optimizer):
             if dp is None:
                 continue
 
-            # TODO: Implement the optimizer step.
+            # DONE: Implement the optimizer step.
             # Create a per-parameter learning rate based on a decaying moving
             # average of it's previous gradients. Use it to update the
             # parameters tensor.
             # ====== YOUR CODE: ======
             dp += self.reg * p
-            self.r[idx] = self.decay * self.r[idx] + (1-self.decay) * dp**2
+            self.r[idx] = self.decay * self.r[idx] + (1-self.decay) * (dp**2)
             p -= (self.learn_rate * torch.rsqrt(self.r[idx]+self.eps))*dp
             # ========================
