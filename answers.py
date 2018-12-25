@@ -63,41 +63,29 @@ The classification (and hence the accuracy) is based on the argmax $x_k$ whereas
 
 part3_q1 = r"""
 **Your answer:**
+1. In our configuration, the depth that produced the most accurate predictions $L=2$. Generally, the deeper the network
+the less accurate results we get. A possible explanation for this phenomenon is that the gradients do not propagate
+precisely due to the back propagation process which calculates gradients throw all the previous layer.    
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+2. For $L=8, 16$ the network was not trainable. This was explained in the previous section
+First, we suggest ussing "skip connections" in order to propagate the gradients to previous layer more accurately. 
+Second, we can use a larger training data. This will help overcoming the noise
 """
 
 part3_q2 = r"""
 **Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+First we can see that from some point extending the depth of the network results an untrainable network. 
+This confirms our conclusion from the previous question. 
+We can see that there is a some trade-off between the depth of the network and the layer size. 
+The optimal hyper-parameters would be found using validation techniques
 
 """
 
 part3_q3 = r"""
 **Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+Networks too deep for our data were un-trainable. This confirms what we learned from the previous questions.
+We can see that gradual increase of the layer size in the feature extraction phase is preferable to a constant 
+size of each layer. Resulting in a smoother learning curve and better accuracies
 """
 
 
