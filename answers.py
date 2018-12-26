@@ -49,6 +49,7 @@ However, during the training there was no significant difference.
 """
 
 part2_q2 = r"""
+**Your answer:**
 Yes, it is possible.
 if we examine the cross entropy loss term below.
 $loss= - x_y + \log\left(\sum_k e^{x_k}\right)$
@@ -91,14 +92,10 @@ size of each layer. Resulting in a smoother learning curve and better accuracies
 
 part3_q4 = r"""
 **Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+In our network we made several important changes. We implemented skip connection for the Convolutional layers. 
+This allows the network to learn even with deeper layer configuration. 
+In addition we added batch normalization layer between conv layer and dropout between linear layers. 
+contrary to the previous architectures that when exceeded ~4 layer could not learn , we now see that the deeper networks
+are able to learn and produce better results The batch norm show faster convergence and prevents overfit
 """
 # ==============
