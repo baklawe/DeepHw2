@@ -178,6 +178,7 @@ class YourCodeNet(ConvClassifier):
         for idx in range(len(lst)-1):
             layers.append(nn.Linear(lst[idx], lst[idx+1]))
             layers.append(nn.ReLU())
+            layers.append(nn.Dropout(p=0.5))
 
         layers.append(nn.Linear(lst[-1], self.out_classes))
         seq = nn.Sequential(*layers)
