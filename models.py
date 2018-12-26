@@ -144,11 +144,58 @@ class YourCodeNet(ConvClassifier):
     def __init__(self, in_size, out_classes, filters, pool_every, hidden_dims):
         super().__init__(in_size, out_classes, filters, pool_every, hidden_dims)
 
-    # TODO: Change whatever you want about the ConvClassifier to try to
+    # DONE: Change whatever you want about the ConvClassifier to try to
     # improve it's results on CIFAR-10.
     # For example, add batchnorm, dropout, skip connections, change conv
     # filter sizes etc.
     # ====== YOUR CODE: ======
-    # raise NotImplementedError()
+    def _make_feature_extractor(self):
+        seq_list = nn.ModuleList()
+        in_channels, in_h, in_w, = tuple(self.in_size)
+        lst = [in_channels, *self.filters]
+        for idx in range(len(lst) - 1):
+            layers = []
+            if idx % self.pool_every is 0 and idx is not 0:
+                layers.append(torch.nn.MaxPool2d(kernel_size=(2, 2)))
+                layers.append(nn.Conv2d(lst[idx]*self.pool_every, lst[idx + 1], kernel_size=(3, 3), padding=(1, 1)))
+                layers.append(nn.ReLU())
+                layers.append(nn.BatchNorm2d(lst[idx + 1]))
+            else:
+                layers.append(nn.Conv2d(lst[idx], lst[idx + 1], kernel_size=(3, 3), padding=(1, 1)))
+                layers.append(nn.ReLU())
+                layers.append(nn.BatchNorm2d(lst[idx + 1]))
+            seq_list.append(nn.Sequential(*layers))
+        layers = [torch.nn.MaxPool2d(kernel_size=(2, 2))]
+        seq_list.append(nn.Sequential(*layers))
+        return seq_list
+
+    def _make_classifier(self):
+        in_channels, in_h, in_w, = tuple(self.in_size)
+        num_pool = int(len(self.filters) // self.pool_every)
+        in_size = int(self.filters[-1] * self.pool_every * (in_h // (2 ** num_pool)) * (in_w // (2 ** num_pool)))
+        lst = [in_size, *self.hidden_dims]
+        layers = []
+        for idx in range(len(lst)-1):
+            layers.append(nn.Linear(lst[idx], lst[idx+1]))
+            layers.append(nn.ReLU())
+
+        layers.append(nn.Linear(lst[-1], self.out_classes))
+        seq = nn.Sequential(*layers)
+        return seq
+
+    def forward(self, x):
+        seq_list = self.feature_extractor
+        skip_list = []
+        for i, seq in enumerate(seq_list):
+            if i % self.pool_every is 0 and i is not 0:
+                x = torch.cat(skip_list, dim=-3)
+                x = seq(x)
+                skip_list = [x]
+            else:
+                x = seq(x)
+                skip_list.append(x)
+        out = self.classifier(x.view([x.shape[0], -1]))
+        return out
+
     # ========================
 

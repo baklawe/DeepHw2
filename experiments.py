@@ -71,7 +71,7 @@ def run_experiment(run_name, out_dir='./results', seed=None,
     dl_test = DataLoader(ds_test, bs_test, shuffle=True)
 
     fit_res = trainer.fit(dl_train, dl_test, epochs, checkpoints=checkpoints, early_stopping=early_stopping,
-                          max_batches=batches)
+                          max_batches=batches, print_every=10)
     # ========================
 
     save_experiment(run_name, out_dir, cfg, fit_res)
